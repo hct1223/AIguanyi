@@ -1,0 +1,6 @@
+{
+  "name": "AI员工团队工作台",
+  "description": "面向单人创业者的轻量级AI虚拟员工工作台，支持自定义虚拟岗位、可视化SOP流程和全自动业务流转。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
