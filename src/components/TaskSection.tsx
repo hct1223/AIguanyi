@@ -21,7 +21,8 @@ import {
   ChevronRight,
   Info,
   Archive,
-  BookOpen
+  BookOpen,
+  Search
 } from "lucide-react";
 import { getTasks, getSops, getStaffList, createTask, executeTaskStep, auditTaskStep, stopTask, deleteTask } from "../api";
 import { Task, SopTemplate, AIStaff, TaskStatus } from "../types";
@@ -34,6 +35,11 @@ export default function TaskSection() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredTasks = tasks.filter((t) =>
+    t.task_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   // New task form state
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -223,12 +229,38 @@ export default function TaskSection() {
         
         {/* Left column: Tasks list */}
         <div className="lg:col-span-1 space-y-3" id="task-left-list">
-          <div className="text-xs font-semibold text-slate-400 px-1 uppercase tracking-wider">
-            协同任务方案库 ({tasks.length})
+          <div className="text-xs font-semibold text-slate-400 px-1 uppercase tracking-wider flex items-center justify-between">
+            <span>协同任务方案库 ({tasks.length})</span>
+            {searchTerm && (
+              <span className="text-[10px] text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded font-medium">
+                已过滤 {filteredTasks.length} 个
+              </span>
+            )}
+          </div>
+
+          {/* Search Input Bar */}
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="按任务名称搜索..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full text-xs pl-8 pr-8 py-2 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-sans"
+            />
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => setSearchTerm("")}
+                className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 focus:outline-none"
+              >
+                <XCircle className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
 
           <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
-            {tasks.map((t) => {
+            {filteredTasks.map((t) => {
               const isActive = t.task_id === selectedTask?.task_id;
               const sopObj = sops.find((s) => s.sop_id === t.sop_id);
               return (
@@ -261,9 +293,9 @@ export default function TaskSection() {
               );
             })}
 
-            {tasks.length === 0 && (
-              <div className="p-12 text-center text-slate-400 border border-slate-200 bg-white rounded-xl">
-                当前暂无历史任务档案。点击右上角“下达”快速开始一个。
+            {filteredTasks.length === 0 && (
+              <div className="p-12 text-center text-slate-400 border border-slate-200 bg-white rounded-xl text-xs">
+                {tasks.length === 0 ? "当前暂无历史任务档案。点击右上角“下达”快速开始一个。" : "未搜寻到匹配该名称的流水线任务"}
               </div>
             )}
           </div>

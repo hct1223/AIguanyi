@@ -205,10 +205,15 @@ export default function AnalyticsSection() {
 
           <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
             {reports.map((rp) => {
-              const isActive = rp.id === selectedReport?.id;
+              const isActive = rp.review_id === selectedReport?.review_id;
+              const title = rp.review_type === "daily" 
+                ? "核心日度全自动运营复盘" 
+                : rp.review_type === "weekly" 
+                ? "核心周度多端深度转化复盘" 
+                : "核心月度战略全景运营复盘";
               return (
                 <div
-                  key={rp.id}
+                  key={rp.review_id}
                   onClick={() => setSelectedReport(rp)}
                   className={`p-4 rounded-xl border text-left transition cursor-pointer relative ${
                     isActive
@@ -217,13 +222,13 @@ export default function AnalyticsSection() {
                   }`}
                 >
                   <div className="text-xs font-bold text-slate-800 line-clamp-1 pr-6 flex items-center gap-1.5">
-                    🧠 {rp.title}
+                    🧠 {title}
                   </div>
                   
                   <div className="flex items-center justify-between text-[10px] text-slate-400 mt-3 pt-2.5 border-t border-slate-100">
                     <span className="flex items-center gap-0.5">
                       <Calendar className="w-3 h-3" />
-                      {new Date(rp.timestamp).toLocaleDateString()}
+                      {new Date(rp.create_time).toLocaleDateString()}
                     </span>
                     <span className="font-bold text-indigo-600">阅读反哺建议</span>
                   </div>
@@ -246,15 +251,15 @@ export default function AnalyticsSection() {
               <div className="flex items-start justify-between flex-wrap gap-2 pb-4 border-b border-slate-100 shrink-0">
                 <div className="space-y-0.5">
                   <h3 className="text-base font-bold text-slate-900 flex items-center gap-1.5">
-                    🎯 {selectedReport.title}
+                    🎯 {selectedReport.review_type === "daily" ? "核心日度全自动运营复盘" : selectedReport.review_type === "weekly" ? "核心周度多端深度转化复盘" : "核心月度战略全景运营复盘"}
                   </h3>
                   <p className="text-xs text-slate-400">
-                    诊断产出时间: {new Date(selectedReport.timestamp).toLocaleString()} • 执行官: AI核心复盘官
+                    诊断产出时间: {new Date(selectedReport.create_time).toLocaleString()} • 执行官: AI核心复盘官
                   </p>
                 </div>
 
                 <button
-                  onClick={() => handleDeleteReport(selectedReport.id)}
+                  onClick={() => handleDeleteReport(selectedReport.review_id)}
                   className="px-2.5 py-1 text-xs text-red-600 bg-red-50 hover:bg-red-100 rounded transition font-semibold cursor-pointer"
                 >
                   丢弃该诊断存档
@@ -270,20 +275,23 @@ export default function AnalyticsSection() {
                     <CheckCircle className="w-4 h-4 text-emerald-500" />
                     多渠道转化深度行研建议说明
                   </h4>
+                  <p className="text-[10px] text-slate-500 font-mono leading-relaxed bg-white border border-slate-100 p-2.5 rounded text-indigo-700">
+                    📊 指标总揽: {selectedReport.data_summary}
+                  </p>
                   <div className="whitespace-pre-line leading-relaxed font-mono text-[11px]">
-                    {selectedReport.content}
+                    {selectedReport.optimize_suggest}
                   </div>
                 </div>
 
                 {/* Counter feedback */}
-                {selectedReport.optimization_guidelines && (
+                {selectedReport.problem_analysis && (
                   <div className="p-3.5 bg-indigo-50/50 rounded-lg border border-indigo-100 space-y-2">
                     <div className="text-[11px] font-bold text-indigo-900 uppercase tracking-wider flex items-center gap-1">
                       <BrainCircuit className="w-4 h-4 text-indigo-600" />
                       SOP 及 Prompt 反哺修正指引 (AI Instruction Refractor)
                     </div>
                     <p className="text-indigo-800 leading-relaxed font-mono text-[11px] whitespace-pre-wrap">
-                      {selectedReport.optimization_guidelines}
+                      {selectedReport.problem_analysis}
                     </p>
                   </div>
                 )}

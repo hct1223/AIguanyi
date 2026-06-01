@@ -157,6 +157,27 @@ export default function AssetsSection() {
   const topics = materials.filter(isTopicMaterial);
   const factMaterials = materials.filter((m) => !isTopicMaterial(m));
 
+  // Filter states
+  const [selectedMaterialType, setSelectedMaterialType] = useState<string>("all");
+  const [selectedPlatform, setSelectedPlatform] = useState<string>("all");
+
+  // Reset filter when switching tabs to avoid stale counts or layouts
+  useEffect(() => {
+    setSelectedMaterialType("all");
+    setSelectedPlatform("all");
+  }, [tab]);
+
+  // Derived filtered arrays
+  const filteredFactMaterials = factMaterials.filter((m) => {
+    if (selectedMaterialType === "all") return true;
+    return m.material_type === selectedMaterialType;
+  });
+
+  const filteredCreatives = creatives.filter((c) => {
+    if (selectedPlatform === "all") return true;
+    return c.platform_type === selectedPlatform;
+  });
+
   return (
     <div className="space-y-6" id="assets-management-view">
       {/* Header */}
@@ -224,6 +245,51 @@ export default function AssetsSection() {
         </button>
       </div>
 
+      {/* Dynamic Dropdown Filter Row */}
+      {!loading && (tab === "materials" || tab === "creatives") && (
+        <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-slate-50/50 rounded-xl border border-slate-200/60" id="assets-filter-row">
+          <div className="flex items-center gap-2.5">
+            <span className="text-xs font-bold text-slate-500 flex items-center gap-1">
+              🔍 按属性条件过滤资媒体资产：
+            </span>
+            {tab === "materials" ? (
+              <select
+                value={selectedMaterialType}
+                onChange={(e) => setSelectedMaterialType(e.target.value)}
+                className="text-xs border border-slate-300 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono font-medium"
+              >
+                <option value="all">📁 全部素材类别 ({factMaterials.length})</option>
+                <option value={MaterialType.CASE}>🔬 案例解析 / 行业事实印证 ({factMaterials.filter(m => m.material_type === MaterialType.CASE).length})</option>
+                <option value={MaterialType.VIEWPOINT}>💡 逻辑论点 / 赛道深度洞察 ({factMaterials.filter(m => m.material_type === MaterialType.VIEWPOINT).length})</option>
+                <option value={MaterialType.GOLD_SENTENCE}>✒️ 精妙金句 / 用户行动号召 ({factMaterials.filter(m => m.material_type === MaterialType.GOLD_SENTENCE).length})</option>
+                <option value={MaterialType.DATA}>📊 行业数据 / 事实证据链条 ({factMaterials.filter(m => m.material_type === MaterialType.DATA).length})</option>
+              </select>
+            ) : (
+              <select
+                value={selectedPlatform}
+                onChange={(e) => setSelectedPlatform(e.target.value)}
+                className="text-xs border border-slate-300 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono font-medium"
+              >
+                <option value="all">🌐 全部改编及分发渠道 ({creatives.length})</option>
+                <option value={PlatformType.WECHAT}>📜 微信公众号深度长文 ({creatives.filter(c => c.platform_type === PlatformType.WECHAT).length})</option>
+                <option value={PlatformType.XIAOHONGSHU}>📱 小红书爆款排版笔记 ({creatives.filter(c => c.platform_type === PlatformType.XIAOHONGSHU).length})</option>
+                <option value={PlatformType.VIDEO}>🎥 短视频急切口播稿本 ({creatives.filter(c => c.platform_type === PlatformType.VIDEO).length})</option>
+                <option value={PlatformType.MOMENTS}>💬 微信朋友圈高浓度走心文 ({creatives.filter(c => c.platform_type === PlatformType.MOMENTS).length})</option>
+                <option value={PlatformType.COMMUNITY}>👥 深度高反思社群激活语 ({creatives.filter(c => c.platform_type === PlatformType.COMMUNITY).length})</option>
+              </select>
+            )}
+          </div>
+
+          <div className="text-[11px] text-slate-400 font-mono font-medium">
+            {tab === "materials" ? (
+              <span>已检索过滤: <strong className="text-indigo-600 font-bold">{filteredFactMaterials.length}</strong> / {factMaterials.length} 项</span>
+            ) : (
+              <span>已检索过滤: <strong className="text-indigo-600 font-bold">{filteredCreatives.length}</strong> / {creatives.length} 篇</span>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* RENDER DYNAMIC TAB CONTENT */}
       {loading ? (
         <div className="p-12 text-center text-xs text-slate-400">正在与资产主脑库进行云同步中...</div>
@@ -284,12 +350,12 @@ export default function AssetsSection() {
           {/* TAB 2: RESEARCH MATERIAL KNOWLEDGE PACKS */}
           {tab === "materials" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4" id="asset-materials-list">
-              {factMaterials.map((m) => (
+              {filteredFactMaterials.map((m) => (
                 <div key={m.material_id} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between text-xs">
                       <span className="px-2 py-0.5 bg-sky-50 text-sky-700 rounded-md font-bold text-[10px] border border-sky-100">
-                        {m.material_type === "case" ? "🔬 行研案例库" : "💡 逻辑论点包"}
+                        {m.material_type === "case" ? "🔬 行研案例库" : m.material_type === "gold_sentence" ? "✒️ 精妙金句" : m.material_type === "data" ? "📊 行业数据库" : "💡 逻辑论点包"}
                       </span>
                       <span className="text-slate-400 font-mono text-[10px]">
                         同步日期: {new Date(m.create_time).toLocaleDateString()}
@@ -323,10 +389,12 @@ export default function AssetsSection() {
                 </div>
               ))}
 
-              {factMaterials.length === 0 && (
+              {filteredFactMaterials.length === 0 && (
                 <div className="col-span-2 text-center py-16 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-400 text-xs">
                   <FolderLock className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                  当前未曾存入原始科研素材。可以点击右上角“存入原始行业素材”，或运行[AI研究员]SOP。
+                  {factMaterials.length === 0 
+                    ? "当前未曾存入原始科研素材。可以点击右上角“存入原始行业素材”，或运行[AI研究员]SOP。"
+                    : "没有找到符合所选材质分类的科研素材。"}
                 </div>
               )}
             </div>
@@ -335,7 +403,7 @@ export default function AssetsSection() {
           {/* TAB 3: WRITTEN COPIES CREATIVES & SIMULATED CHANNELS */}
           {tab === "creatives" && (
             <div className="space-y-4" id="asset-creatives-list">
-              {creatives.map((c) => {
+              {filteredCreatives.map((c) => {
                 const isPublished = c.publish_status === "published";
                 return (
                   <div key={c.content_id} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -468,10 +536,12 @@ export default function AssetsSection() {
                 );
               })}
 
-              {creatives.length === 0 && (
+              {filteredCreatives.length === 0 && (
                 <div className="text-center py-16 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-400 text-xs">
                   <FileText className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                  当前尚未有已就位发表的文章文案草稿。
+                  {creatives.length === 0
+                    ? "当前尚未有已就位发表的文章文案草稿。"
+                    : "没有找到符合所选分发平台的宣发案本。"}
                 </div>
               )}
             </div>

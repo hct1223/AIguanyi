@@ -44,7 +44,7 @@ export default function App() {
     { id: "staff", label: "🧑‍管 AI 员工团队", icon: Users },
     { id: "sop", label: "⚙️ SOP 流程引擎", icon: Compass },
     { id: "tasks", label: "🛸 任务流水线", icon: Play },
-    { id: "assets", label: "📂 自媒体资产库", icon: BookOpen },
+    { id: "assets", label: "📂 AI 智能知识库", icon: BookOpen },
     { id: "customers", label: "🛰️ 私域咨询转化", icon: MessageSquare },
     { id: "analytics", label: "📊 二极转化复盘", icon: BarChart2 },
     { id: "settings", label: "🔧 系统参数日志", icon: Settings2 }

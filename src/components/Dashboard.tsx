@@ -120,7 +120,7 @@ export default function Dashboard({ onNavigate, onCreateTaskQuick }: DashboardPr
             <div className="text-2xl font-bold tracking-tight text-slate-800">
               {stats?.topic_count || 5} <span className="text-xs font-normal text-slate-400">核定</span>
             </div>
-            <span className="text-[10px] text-emerald-600 font-medium">已沉淀选题资产</span>
+            <span className="text-[10px] text-emerald-600 font-medium">已沉淀知识文档</span>
           </div>
         </div>
 
@@ -397,9 +397,9 @@ export default function Dashboard({ onNavigate, onCreateTaskQuick }: DashboardPr
               >
                 <span className="flex items-center gap-1.5">
                   <Compass className="w-3.5 h-3.5" />
-                  查阅自媒体已熟选题库
+                  查阅 AI 智能知识中心
                 </span>
-                <span className="text-[9px] bg-slate-800 px-1.5 py-0.5 rounded">资产</span>
+                <span className="text-[9px] bg-slate-800 px-1.5 py-0.5 rounded">知识库</span>
               </button>
             </div>
 
